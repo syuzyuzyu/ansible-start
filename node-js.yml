@@ -1,0 +1,39 @@
+---
+- hosts: all
+  user: vagrant
+  vars:
+    node_version: '0.10.26'
+    nodebrew_path: '.nodebrew/current/bin'
+  tasks:
+    - name: install perl
+      command: sudo yum install -y perl
+
+    - name: download nodebrew
+      get_url: url="http://git.io/nodebrew" dest=/var/tmp/nodebrew
+
+    - name: install nodebrew
+      command: perl /var/tmp/nodebrew setup
+
+    - name: rewrite .bashrc for export path
+      shell: echo export PATH=$HOME/.nodebrew/current/bin:$PATH > $HOME/.bashrc
+
+    - name: install nodejs ver{{ node_version }}
+      shell: nodebrew install-binary v{{ node_version }}
+      ignore_errors: True
+      environment:
+        PATH: "/home/vagrant/{{ nodebrew_path }}:{{ ansible_env.PATH }}"
+
+    - name: use nodejs
+      shell: nodebrew use {{ node_version }}
+      environment:
+        PATH: "/home/vagrant/{{ nodebrew_path }}:{{ ansible_env.PATH }}"
+
+    - name: move nodejs project
+      copy:
+        src: original.tar.gz
+        dest: ~/original.tar.gz
+
+    - name: open project
+      unarchive:
+        src: ~/original.tar.gz
+        dest: ~/original

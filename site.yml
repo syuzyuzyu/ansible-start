@@ -1,0 +1,25 @@
+---
+- name: apply ansible test
+  hosts: all
+  become: true
+  tasks:
+    - name: libaselinux-python install
+      yum: 
+        name: libselinux-python
+        state: present 
+
+    - name: EPEL install
+      yum:
+        name: epel-release
+        state: present
+
+    - name: nginx install
+      yum: 
+        name: nginx
+        state: present
+
+    - name: Nginx service auto start
+      service: 
+        name: nginx
+        state: started
+        enabled: true
